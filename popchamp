@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pop Culture Champion Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #f5576c;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .timer {
+            font-size: 1.2em;
+            color: #f093fb;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .score {
+            font-size: 1.1em;
+            color: #555;
+            margin: 10px 0;
+        }
+        
+        .progress {
+            font-size: 1em;
+            color: #888;
+            margin: 10px 0;
+        }
+        
+        .question-container {
+            margin: 30px 0;
+        }
+        
+        .question {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .category {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #f5576c;
+            margin-bottom: 15px;
+        }
+        
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+        
+        .option:hover {
+            background: #ffe8f0;
+            border-color: #f5576c;
+            transform: translateX(5px);
+        }
+        
+        .option.selected {
+            background: #f5576c;
+            border-color: #f5576c;
+            color: white;
+        }
+        
+        .option.correct {
+            background: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        
+        .option.incorrect {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+        
+        .button {
+            background: #f5576c;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .button:hover {
+            background: #f093fb;
+            transform: scale(1.05);
+        }
+        
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .start-screen, .end-screen {
+            text-align: center;
+        }
+        
+        .instructions {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+        
+        .instructions h3 {
+            color: #f5576c;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ul {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 10px 0;
+        }
+        
+        .final-score {
+            font-size: 3em;
+            color: #f5576c;
+            margin: 20px 0;
+        }
+        
+        .feedback {
+            font-size: 1.3em;
+            color: #555;
+            margin: 20px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .explanation {
+            background: #ffe8f0;
+            border-left: 4px solid #f5576c;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Start Screen -->
+        <div id="startScreen" class="start-screen">
+            <div class="header">
+                <h1>🎬 Pop Culture Champion</h1>
+                <p style="font-size: 1.2em; color: #666; margin-top: 10px;">
+                    Test your knowledge of entertainment, music, and sports!
+                </p>
+            </div>
+            
+            <div class="instructions">
+                <h3>📋 How to Play:</h3>
+                <ul>
+                    <li><strong>25 Pop Culture Questions</strong> covering movies, TV, music, and sports</li>
+                    <li><strong>~15 minutes</strong> total game time (36 seconds per question)</li>
+                    <li>Each correct answer = <strong>10 points</strong></li>
+                    <li>Select your answer and click "Submit Answer"</li>
+                    <li>You must wait for the timer to run out before moving to the next question</li>
+                    <li>Become the Pop Culture Champion! 🎭</li>
+                </ul>
+            </div>
+            
+            <button class="button" onclick="startGame()">Start Pop Culture Challenge! 🚀</button>
+        </div>
+        
+        <!-- Game Screen -->
+        <div id="gameScreen" class="hidden">
+            <div class="header">
+                <h1>🎬 Pop Culture Champion</h1>
+                <div class="timer">⏱️ Time: <span id="timer">36</span>s</div>
+                <div class="score">🏆 Score: <span id="score">0</span> / <span id="maxScore">0</span></div>
+                <div class="progress">Question <span id="currentQ">1</span> of <span id="totalQ">25</span></div>
+            </div>
+            
+            <div class="question-container">
+                <div class="category" id="category"></div>
+                <div class="question" id="question"></div>
+                <div class="options" id="options"></div>
+                <div class="explanation hidden" id="explanation"></div>
+            </div>
+            
+            <button class="button" id="submitBtn" onclick="submitAnswer()" disabled>Submit Answer</button>
+            <button class="button hidden" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+        </div>
+        
+        <!-- End Screen -->
+        <div id="endScreen" class="hidden end-screen">
+            <div class="header">
+                <h1>🎉 Challenge Complete!</h1>
+            </div>
+            
+            <div class="final-score" id="finalScore">0/250</div>
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="instructions">
+                <h3>🌟 Pop Culture Champion Results</h3>
+                <p style="margin-top: 15px; line-height: 1.6;">
+                    Great job! Share your score to see who's the ultimate Pop Culture Champion!
+                </p>
+            </div>
+            
+            <button class="button" onclick="location.reload()">Play Again 🔄</button>
+        </div>
+    </div>
+    
+    <script>
+        const questions = [
+            {
+                category: "🎬 Movies",
+                question: "Which film won Best Picture at the 2023 Academy Awards?",
+                options: ["Top Gun: Maverick", "Everything Everywhere All at Once", "The Fabelmans", "Avatar: The Way of Water"],
+                correct: 1,
+                explanation: "Everything Everywhere All at Once won Best Picture and swept the 2023 Oscars with 7 awards."
+            },
+            {
+                category: "🎵 Music",
+                question: "Who is known as the 'Queen of Pop'?",
+                options: ["Beyoncé", "Madonna", "Lady Gaga", "Taylor Swift"],
+                correct: 1,
+                explanation: "Madonna is widely known as the 'Queen of Pop' due to her influence since the 1980s."
+            },
+            {
+                category: "🏏 Sports",
+                question: "In cricket, what is a 'century'?",
+                options: ["100 runs by a batsman", "100 wickets", "100 matches", "100 balls bowled"],
+                correct: 0,
+                explanation: "A century in cricket refers to a batsman scoring 100 or more runs in a single innings."
+            },
+            {
+                category: "📺 TV Shows",
+                question: "Which sitcom features the characters Ross, Rachel, and Monica?",
+                options: ["How I Met Your Mother", "Friends", "Seinfeld", "The Big Bang Theory"],
+                correct: 1,
+                explanation: "Friends, which aired from 1994-2004, featured these beloved characters."
+            },
+            {
+                category: "🎬 Bollywood",
+                question: "Which Bollywood film was India's official entry for the 2024 Oscars?",
+                options: ["Pathaan", "Jawan", "Ponniyin Selvan", "RRR"],
+                correct: 2,
+                explanation: "Ponniyin Selvan: II was India's official entry for the Best International Feature Film at the 96th Academy Awards."
+            },
+            {
+                category: "⚽ Sports",
+                question: "Which country won the FIFA World Cup in 2022?",
+                options: ["France", "Brazil", "Argentina", "Germany"],
+                correct: 2,
+                explanation: "Argentina won the 2022 FIFA World Cup in Qatar, with Lionel Messi leading the team."
+            },
+            {
+                category: "🎵 Music",
+                question: "Which artist holds the record for most Grammy Awards won?",
+                options: ["Beyoncé", "Quincy Jones", "Jay-Z", "Kanye West"],
+                correct: 0,
+                explanation: "Beyoncé holds the record with 32 Grammy Awards as of 2023."
+            },
+            {
+                category: "🎬 Movies",
+                question: "What year was the first 'Jurassic Park' movie released?",
+                options: ["1991", "1993", "1995", "1997"],
+                correct: 1,
+                explanation: "Jurassic Park was released in 1993 and directed by Steven Spielberg."
+            },
+            {
+                category: "🏀 Sports",
+                question: "How many points is a three-pointer worth in basketball?",
+                options: ["2", "3", "4", "5"],
+                correct: 1,
+                explanation: "A three-pointer is worth 3 points in basketball when shot from beyond the three-point line."
+            },
+            {
+                category: "📺 TV Shows",
+                question: "What is the fictional town where 'Stranger Things' takes place?",
+                options: ["Riverdale", "Hawkins", "Twin Peaks", "Beacon Hills"],
+                correct: 1,
+                explanation: "Stranger Things is set in the fictional town of Hawkins, Indiana."
+            },
+            {
+                category: "🎬 Bollywood",
+                question: "Which actress is known as the 'Queen of Bollywood'?",
+                options: ["Deepika Padukone", "Priyanka Chopra", "Kajol", "Kangana Ranaut"],
+                correct: 3,
+                explanation: "Kangana Ranaut has been referred to as the 'Queen of Bollywood' and starred in the film 'Queen'."
+            },
+            {
+                category: "🎵 Music",
+                question: "Which band sang 'Bohemian Rhapsody'?",
+                options: ["The Beatles", "Led Zeppelin", "Queen", "Pink Floyd"],
+                correct: 2,
+                explanation: "Queen released 'Bohemian Rhapsody' in 1975, written by Freddie Mercury."
+            },
+            {
+                category: "🏆 Sports",
+                question: "How many Olympic gold medals has Michael Phelps won?",
+                options: ["18", "20", "23", "25"],
+                correct: 2,
+                explanation: "Michael Phelps won 23 Olympic gold medals, the most by any Olympian."
+            },
+            {
+                category: "🎬 Movies",
+                question: "Which Marvel movie was the first to gross over $2 billion?",
+                options: ["Avengers: Infinity War", "Avengers: Endgame", "Black Panther", "Spider-Man: No Way Home"],
+                correct: 1,
+                explanation: "Avengers: Endgame (2019) was the first Marvel movie to gross over $2 billion worldwide."
+            },
+            {
+                category: "📺 TV Shows",
+                question: "What is the name of the coffee shop in 'Friends'?",
+                options: ["Central Perk", "Monk's Cafe", "Luke's Diner", "The Drip"],
+                correct: 0,
+                explanation: "Central Perk is the iconic coffee shop where the Friends characters frequently hang out."
+            },
+            {
+                category: "🏏 Sports",
+                question: "Which country has won the most Cricket World Cups?",
+                options: ["India", "Australia", "West Indies", "England"],
+                correct: 1,
+                explanation: "Australia has won the Cricket World Cup 5 times (1987, 1999, 2003, 2007, 2015)."
+            },
+            {
+                category: "🎵 Music",
+                question: "Which artist is known for the 'Eras Tour' in 2023?",
+                options: ["Adele", "Taylor Swift", "Ariana Grande", "Billie Eilish"],
+                correct: 1,
+                explanation: "Taylor Swift's Eras Tour in 2023 became one of the highest-grossing concert tours of all time."
+            },
+            {
+                category: "🎬 Movies",
+                question: "Which actor played Iron Man in the Marvel Cinematic Universe?",
+                options: ["Chris Evans", "Robert Downey Jr.", "Chris Hemsworth", "Mark Ruffalo"],
+                correct: 1,
+                explanation: "Robert Downey Jr. portrayed Tony Stark/Iron Man from 2008 to 2019 in the MCU."
+            },
+            {
+                category: "🏅 Sports",
+                question: "What is the maximum break in snooker?",
+                options: ["147", "180", "200", "300"],
+                correct: 0,
+                explanation: "The maximum break in snooker is 147 points, achieved by potting all reds with blacks, then all colors."
+            },
+            {
+                category: "📺 TV Shows",
+                question: "Which show features the character Walter White?",
+                options: ["The Sopranos", "Breaking Bad", "Better Call Saul", "Mad Men"],
+                correct: 1,
+                explanation: "Breaking Bad (2008-2013) follows chemistry teacher Walter White's transformation into a drug lord."
+            },
+            {
+                category: "🎬 Bollywood",
+                question: "Who directed the film 'Dangal'?",
+                options: ["Rajkumar Hirani", "Nitesh Tiwari", "Sanjay Leela Bhansali", "Karan Johar"],
+                correct: 1,
+                explanation: "Nitesh Tiwari directed Dangal (2016), starring Aamir Khan, which became one of Bollywood's highest-grossing films."
+            },
+            {
+                category: "🎵 Music",
+                question: "Which Indian singer is known as the 'Nightingale of India'?",
+                options: ["Asha Bhosle", "Lata Mangeshkar", "Shreya Ghoshal", "Alka Yagnik"],
+                correct: 1,
+                explanation: "Lata Mangeshkar (1929-2022) was known as the 'Nightingale of India' and recorded thousands of songs."
+            },
+            {
+                category: "⚽ Sports",
+                question: "Which player has won the most Ballon d'Or awards?",
+                options: ["Cristiano Ronaldo", "Lionel Messi", "Michel Platini", "Johan Cruyff"],
+                correct: 1,
+                explanation: "Lionel Messi has won the Ballon d'Or award 8 times as of 2023."
+            },
+            {
+                category: "🎬 Movies",
+                question: "What was the first feature-length animated film ever released?",
+                options: ["Fantasia", "Pinocchio", "Snow White and the Seven Dwarfs", "Bambi"],
+                correct: 2,
+                explanation: "Snow White and the Seven Dwarfs (1937) was the first full-length animated feature film."
+            },
+            {
+                category: "📺 TV Shows",
+                question: "Which show holds the record for most Emmy wins?",
+                options: ["Game of Thrones", "The West Wing", "Saturday Night Live", "Frasier"],
+                correct: 0,
+                explanation: "Game of Thrones won 59 Emmy Awards during its run, the most for any drama series."
+            }
+        ];
+        
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+        let timer;
+        let timeLeft = 36;
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('totalQ').textContent = questions.length;
+            document.getElementById('maxScore').textContent = questions.length * 10;
+            loadQuestion();
+            startTimer();
+        }
+        
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('category').textContent = q.category;
+            document.getElementById('question').textContent = q.question;
+            document.getElementById('currentQ').textContent = currentQuestion + 1;
+            
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = option;
+                div.onclick = () => selectOption(index);
+                optionsDiv.appendChild(div);
+            });
+            
+            document.getElementById('explanation').classList.add('hidden');
+            document.getElementById('submitBtn').classList.remove('hidden');
+            document.getElementById('nextBtn').classList.add('hidden');
+            document.getElementById('submitBtn').disabled = true;
+            selectedOption = null;
+            
+            timeLeft = 36;
+            startTimer();
+        }
+        
+        function selectOption(index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[index].classList.add('selected');
+            selectedOption = index;
+            document.getElementById('submitBtn').disabled = false;
+        }
+        
+        function submitAnswer() {
+            if (selectedOption === null) return;
+            if (timeLeft <= 0) return;
+            
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach(opt => opt.style.pointerEvents = 'none');
+            
+            options[q.correct].classList.add('correct');
+            
+            if (selectedOption === q.correct) {
+                score += 10;
+                document.getElementById('score').textContent = score;
+            } else {
+                options[selectedOption].classList.add('incorrect');
+            }
+            
+            document.getElementById('explanation').textContent = q.explanation;
+            document.getElementById('explanation').classList.remove('hidden');
+            document.getElementById('submitBtn').classList.add('hidden');
+        }
+        
+        function timeoutAnswer() {
+            clearInterval(timer);
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            const submitBtn = document.getElementById('submitBtn');
+            if (!submitBtn.classList.contains('hidden')) {
+                options[q.correct].classList.add('correct');
+                
+                if (selectedOption !== null && selectedOption !== q.correct) {
+                    options[selectedOption].classList.add('incorrect');
+                }
+                
+                document.getElementById('explanation').textContent = '⏰ Time\'s up! ' + q.explanation;
+                document.getElementById('explanation').classList.remove('hidden');
+                document.getElementById('submitBtn').classList.add('hidden');
+            }
+            
+            document.getElementById('nextBtn').classList.remove('hidden');
+        }
+        
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+        
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timeoutAnswer();
+                }
+            }, 1000);
+        }
+        
+        function endGame() {
+            clearInterval(timer);
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('endScreen').classList.remove('hidden');
+            
+            const finalScoreText = score + ' / ' + (questions.length * 10);
+            document.getElementById('finalScore').textContent = finalScoreText;
+            
+            const percentage = (score / (questions.length * 10)) * 100;
+            let feedback = '';
+            
+            if (percentage >= 90) {
+                feedback = '🌟 Amazing! You\'re a true Pop Culture Champion!';
+            } else if (percentage >= 70) {
+                feedback = '🎬 Great job! You know your entertainment!';
+            } else if (percentage >= 50) {
+                feedback = '🎭 Well done! Solid pop culture knowledge!';
+            } else {
+                feedback = '📺 Keep watching! There\'s always more to discover!';
+            }
+            
+            document.getElementById('feedback').textContent = feedback;
+        }
+    </script>
+</body>
+</html>
