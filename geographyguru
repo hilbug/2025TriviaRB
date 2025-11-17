@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geography Guru Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #11998e;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .timer {
+            font-size: 1.2em;
+            color: #38ef7d;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .score {
+            font-size: 1.1em;
+            color: #555;
+            margin: 10px 0;
+        }
+        
+        .progress {
+            font-size: 1em;
+            color: #888;
+            margin: 10px 0;
+        }
+        
+        .question-container {
+            margin: 30px 0;
+        }
+        
+        .question {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .category {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #11998e;
+            margin-bottom: 15px;
+        }
+        
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+        
+        .option:hover {
+            background: #e8fff9;
+            border-color: #11998e;
+            transform: translateX(5px);
+        }
+        
+        .option.selected {
+            background: #11998e;
+            border-color: #11998e;
+            color: white;
+        }
+        
+        .option.correct {
+            background: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        
+        .option.incorrect {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+        
+        .button {
+            background: #11998e;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .button:hover {
+            background: #38ef7d;
+            transform: scale(1.05);
+        }
+        
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .start-screen, .end-screen {
+            text-align: center;
+        }
+        
+        .instructions {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+        
+        .instructions h3 {
+            color: #11998e;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ul {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 10px 0;
+        }
+        
+        .final-score {
+            font-size: 3em;
+            color: #11998e;
+            margin: 20px 0;
+        }
+        
+        .feedback {
+            font-size: 1.3em;
+            color: #555;
+            margin: 20px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .explanation {
+            background: #e8fff9;
+            border-left: 4px solid #11998e;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Start Screen -->
+        <div id="startScreen" class="start-screen">
+            <div class="header">
+                <h1>🌍 Geography Guru Challenge</h1>
+                <p style="font-size: 1.2em; color: #666; margin-top: 10px;">
+                    Test your knowledge of world geography!
+                </p>
+            </div>
+            
+            <div class="instructions">
+                <h3>📋 How to Play:</h3>
+                <ul>
+                    <li><strong>25 Geography Questions</strong> about countries, capitals, landmarks, and more</li>
+                    <li><strong>~15 minutes</strong> total game time (36 seconds per question)</li>
+                    <li>Each correct answer = <strong>10 points</strong></li>
+                    <li>Select your answer and click "Submit Answer"</li>
+                    <li>You must wait for the timer to run out before moving to the next question</li>
+                    <li>Become the Geography Guru! 🌎</li>
+                </ul>
+            </div>
+            
+            <button class="button" onclick="startGame()">Start Geography Challenge! 🚀</button>
+        </div>
+        
+        <!-- Game Screen -->
+        <div id="gameScreen" class="hidden">
+            <div class="header">
+                <h1>🌍 Geography Guru</h1>
+                <div class="timer">⏱️ Time: <span id="timer">36</span>s</div>
+                <div class="score">🏆 Score: <span id="score">0</span> / <span id="maxScore">0</span></div>
+                <div class="progress">Question <span id="currentQ">1</span> of <span id="totalQ">25</span></div>
+            </div>
+            
+            <div class="question-container">
+                <div class="category" id="category"></div>
+                <div class="question" id="question"></div>
+                <div class="options" id="options"></div>
+                <div class="explanation hidden" id="explanation"></div>
+            </div>
+            
+            <button class="button" id="submitBtn" onclick="submitAnswer()" disabled>Submit Answer</button>
+            <button class="button hidden" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+        </div>
+        
+        <!-- End Screen -->
+        <div id="endScreen" class="hidden end-screen">
+            <div class="header">
+                <h1>🎉 Challenge Complete!</h1>
+            </div>
+            
+            <div class="final-score" id="finalScore">0/250</div>
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="instructions">
+                <h3>🌟 Geography Guru Results</h3>
+                <p style="margin-top: 15px; line-height: 1.6;">
+                    Great job exploring the world! Share your score to see who's the ultimate Geography Guru!
+                </p>
+            </div>
+            
+            <button class="button" onclick="location.reload()">Play Again 🔄</button>
+        </div>
+    </div>
+    
+    <script>
+        const questions = [
+            {
+                category: "🌍 Capitals",
+                question: "What is the capital of Canada?",
+                options: ["Toronto", "Vancouver", "Ottawa", "Montreal"],
+                correct: 2,
+                explanation: "Ottawa is the capital of Canada, located in the province of Ontario."
+            },
+            {
+                category: "🌍 Countries",
+                question: "Which country has the most natural lakes?",
+                options: ["USA", "Canada", "Russia", "Finland"],
+                correct: 1,
+                explanation: "Canada has more lakes than any other country, with over 2 million lakes covering about 9% of Canadian territory."
+            },
+            {
+                category: "🗺️ Continents",
+                question: "Which continent has the most countries?",
+                options: ["Asia", "Africa", "Europe", "South America"],
+                correct: 1,
+                explanation: "Africa has 54 countries, the most of any continent."
+            },
+            {
+                category: "🏔️ Mountains",
+                question: "In which mountain range is K2 located?",
+                options: ["Himalayas", "Karakoram", "Andes", "Rockies"],
+                correct: 1,
+                explanation: "K2, the second highest mountain in the world, is located in the Karakoram range on the China-Pakistan border."
+            },
+            {
+                category: "🌊 Oceans",
+                question: "Which ocean is the deepest?",
+                options: ["Atlantic", "Pacific", "Indian", "Arctic"],
+                correct: 1,
+                explanation: "The Pacific Ocean is the deepest, with the Mariana Trench reaching depths of about 11,000 meters."
+            },
+            {
+                category: "🌍 Capitals",
+                question: "What is the capital of Brazil?",
+                options: ["Rio de Janeiro", "São Paulo", "Brasília", "Salvador"],
+                correct: 2,
+                explanation: "Brasília has been the capital of Brazil since 1960, replacing Rio de Janeiro."
+            },
+            {
+                category: "🗺️ Islands",
+                question: "Which is the largest island in the world?",
+                options: ["Greenland", "New Guinea", "Borneo", "Madagascar"],
+                correct: 0,
+                explanation: "Greenland is the world's largest island at about 2.2 million square kilometers."
+            },
+            {
+                category: "🌍 Countries",
+                question: "Which country has the longest coastline?",
+                options: ["Australia", "Russia", "Canada", "Indonesia"],
+                correct: 2,
+                explanation: "Canada has the world's longest coastline at over 202,000 kilometers."
+            },
+            {
+                category: "🏜️ Deserts",
+                question: "Which is the largest hot desert in the world?",
+                options: ["Sahara", "Arabian", "Gobi", "Kalahari"],
+                correct: 0,
+                explanation: "The Sahara Desert in North Africa is the largest hot desert, covering about 9 million square kilometers."
+            },
+            {
+                category: "🌍 Capitals",
+                question: "What is the capital of Thailand?",
+                options: ["Phuket", "Chiang Mai", "Bangkok", "Pattaya"],
+                correct: 2,
+                explanation: "Bangkok is the capital and largest city of Thailand."
+            },
+            {
+                category: "🌊 Rivers",
+                question: "Which river is considered the holiest in India?",
+                options: ["Yamuna", "Brahmaputra", "Ganges (Ganga)", "Godavari"],
+                correct: 2,
+                explanation: "The Ganges (Ganga) is considered the holiest river in Hinduism and flows through northern India."
+            },
+            {
+                category: "🗺️ Borders",
+                question: "Which two countries share the longest international border?",
+                options: ["USA and Mexico", "USA and Canada", "Russia and Kazakhstan", "China and Mongolia"],
+                correct: 1,
+                explanation: "The USA and Canada share the longest international border at about 8,891 kilometers."
+            },
+            {
+                category: "🌍 Capitals",
+                question: "What is the highest capital city in the world?",
+                options: ["Quito", "Bogotá", "La Paz", "Kathmandu"],
+                correct: 2,
+                explanation: "La Paz, Bolivia is the highest capital city at about 3,650 meters above sea level."
+            },
+            {
+                category: "🏔️ Mountains",
+                question: "On which continent is Mount Kilimanjaro located?",
+                options: ["Asia", "South America", "Africa", "Europe"],
+                correct: 2,
+                explanation: "Mount Kilimanjaro is located in Tanzania, Africa, and is the highest mountain on the continent."
+            },
+            {
+                category: "🌍 Countries",
+                question: "Which country is both in Europe and Asia?",
+                options: ["Turkey", "Russia", "Egypt", "Both A and B"],
+                correct: 3,
+                explanation: "Both Turkey and Russia span Europe and Asia, making them transcontinental countries."
+            },
+            {
+                category: "🗺️ Geography",
+                question: "Which US state is closest to Africa?",
+                options: ["Florida", "Maine", "Alaska", "Hawaii"],
+                correct: 1,
+                explanation: "Maine is the closest US state to Africa, specifically to Morocco."
+            },
+            {
+                category: "🌍 Capitals",
+                question: "What is the capital of India?",
+                options: ["Mumbai", "New Delhi", "Bangalore", "Kolkata"],
+                correct: 1,
+                explanation: "New Delhi is the capital of India, located in the northern part of the country."
+            },
+            {
+                category: "🌊 Seas",
+                question: "Which sea is located to the west of India?",
+                options: ["Red Sea", "Arabian Sea", "Bay of Bengal", "South China Sea"],
+                correct: 1,
+                explanation: "The Arabian Sea is located to the west of India, while the Bay of Bengal is to the east."
+            },
+            {
+                category: "🗺️ Latitude",
+                question: "Which country is crossed by both the Equator and the Tropic of Capricorn?",
+                options: ["Brazil", "Indonesia", "Kenya", "Ecuador"],
+                correct: 0,
+                explanation: "Brazil is the only country crossed by both the Equator and the Tropic of Capricorn."
+            },
+            {
+                category: "🏛️ Landmarks",
+                question: "The Taj Mahal is located in which Indian city?",
+                options: ["Delhi", "Jaipur", "Agra", "Mumbai"],
+                correct: 2,
+                explanation: "The Taj Mahal is located in Agra, Uttar Pradesh, and was built by Mughal emperor Shah Jahan."
+            },
+            {
+                category: "🗺️ Indian States",
+                question: "Which is the largest state in India by area?",
+                options: ["Maharashtra", "Uttar Pradesh", "Rajasthan", "Madhya Pradesh"],
+                correct: 2,
+                explanation: "Rajasthan is the largest Indian state by area, covering about 342,239 square kilometers."
+            },
+            {
+                category: "🌍 Countries",
+                question: "Which country has the most time zones?",
+                options: ["USA", "Russia", "France", "China"],
+                correct: 2,
+                explanation: "France has 12 time zones due to its overseas territories, more than any other country."
+            },
+            {
+                category: "🗺️ Geography",
+                question: "What percentage of Earth's surface is covered by water?",
+                options: ["50%", "60%", "71%", "80%"],
+                correct: 2,
+                explanation: "About 71% of Earth's surface is covered by water, mostly by oceans."
+            },
+            {
+                category: "🌍 Capitals",
+                question: "What is the capital of South Korea?",
+                options: ["Seoul", "Busan", "Incheon", "Daegu"],
+                correct: 0,
+                explanation: "Seoul is the capital and largest city of South Korea."
+            },
+            {
+                category: "🌊 Straits",
+                question: "Which strait separates Asia from North America?",
+                options: ["Strait of Gibraltar", "Bering Strait", "Strait of Hormuz", "Strait of Malacca"],
+                correct: 1,
+                explanation: "The Bering Strait separates Russia (Asia) from Alaska (North America) and is only about 85 km wide."
+            }
+        ];
+        
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+        let timer;
+        let timeLeft = 36;
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('totalQ').textContent = questions.length;
+            document.getElementById('maxScore').textContent = questions.length * 10;
+            loadQuestion();
+            startTimer();
+        }
+        
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('category').textContent = q.category;
+            document.getElementById('question').textContent = q.question;
+            document.getElementById('currentQ').textContent = currentQuestion + 1;
+            
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = option;
+                div.onclick = () => selectOption(index);
+                optionsDiv.appendChild(div);
+            });
+            
+            document.getElementById('explanation').classList.add('hidden');
+            document.getElementById('submitBtn').classList.remove('hidden');
+            document.getElementById('nextBtn').classList.add('hidden');
+            document.getElementById('submitBtn').disabled = true;
+            selectedOption = null;
+            
+            timeLeft = 36;
+            startTimer();
+        }
+        
+        function selectOption(index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[index].classList.add('selected');
+            selectedOption = index;
+            document.getElementById('submitBtn').disabled = false;
+        }
+        
+        function submitAnswer() {
+            if (selectedOption === null) return;
+            if (timeLeft <= 0) return;
+            
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach(opt => opt.style.pointerEvents = 'none');
+            
+            options[q.correct].classList.add('correct');
+            
+            if (selectedOption === q.correct) {
+                score += 10;
+                document.getElementById('score').textContent = score;
+            } else {
+                options[selectedOption].classList.add('incorrect');
+            }
+            
+            document.getElementById('explanation').textContent = q.explanation;
+            document.getElementById('explanation').classList.remove('hidden');
+            document.getElementById('submitBtn').classList.add('hidden');
+        }
+        
+        function timeoutAnswer() {
+            clearInterval(timer);
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            const submitBtn = document.getElementById('submitBtn');
+            if (!submitBtn.classList.contains('hidden')) {
+                options[q.correct].classList.add('correct');
+                
+                if (selectedOption !== null && selectedOption !== q.correct) {
+                    options[selectedOption].classList.add('incorrect');
+                }
+                
+                document.getElementById('explanation').textContent = '⏰ Time\'s up! ' + q.explanation;
+                document.getElementById('explanation').classList.remove('hidden');
+                document.getElementById('submitBtn').classList.add('hidden');
+            }
+            
+            document.getElementById('nextBtn').classList.remove('hidden');
+        }
+        
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+        
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timeoutAnswer();
+                }
+            }, 1000);
+        }
+        
+        function endGame() {
+            clearInterval(timer);
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('endScreen').classList.remove('hidden');
+            
+            const finalScoreText = score + ' / ' + (questions.length * 10);
+            document.getElementById('finalScore').textContent = finalScoreText;
+            
+            const percentage = (score / (questions.length * 10)) * 100;
+            let feedback = '';
+            
+            if (percentage >= 90) {
+                feedback = '🌟 Outstanding! You\'re a true Geography Guru!';
+            } else if (percentage >= 70) {
+                feedback = '🗺️ Great job! You know your world geography!';
+            } else if (percentage >= 50) {
+                feedback = '🌍 Well done! Solid geographic knowledge!';
+            } else {
+                feedback = '✈️ Keep exploring! The world is yours to discover!';
+            }
+            
+            document.getElementById('feedback').textContent = feedback;
+        }
+    </script>
+</body>
+</html>
