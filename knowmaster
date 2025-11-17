@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Master Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #4facfe;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .timer {
+            font-size: 1.2em;
+            color: #00f2fe;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .score {
+            font-size: 1.1em;
+            color: #555;
+            margin: 10px 0;
+        }
+        
+        .progress {
+            font-size: 1em;
+            color: #888;
+            margin: 10px 0;
+        }
+        
+        .question-container {
+            margin: 30px 0;
+        }
+        
+        .question {
+            font-size: 1.4em;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .category {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            color: #4facfe;
+            margin-bottom: 15px;
+        }
+        
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .option {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+        
+        .option:hover {
+            background: #e8f7ff;
+            border-color: #4facfe;
+            transform: translateX(5px);
+        }
+        
+        .option.selected {
+            background: #4facfe;
+            border-color: #4facfe;
+            color: white;
+        }
+        
+        .option.correct {
+            background: #28a745;
+            border-color: #28a745;
+            color: white;
+        }
+        
+        .option.incorrect {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+        }
+        
+        .button {
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 20px auto;
+            display: block;
+        }
+        
+        .button:hover {
+            background: #00f2fe;
+            transform: scale(1.05);
+        }
+        
+        .button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .start-screen, .end-screen {
+            text-align: center;
+        }
+        
+        .instructions {
+            text-align: left;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+        
+        .instructions h3 {
+            color: #4facfe;
+            margin-bottom: 15px;
+        }
+        
+        .instructions ul {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin: 10px 0;
+        }
+        
+        .final-score {
+            font-size: 3em;
+            color: #4facfe;
+            margin: 20px 0;
+        }
+        
+        .feedback {
+            font-size: 1.3em;
+            color: #555;
+            margin: 20px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .explanation {
+            background: #e8f7ff;
+            border-left: 4px solid #4facfe;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Start Screen -->
+        <div id="startScreen" class="start-screen">
+            <div class="header">
+                <h1>🧠 Knowledge Master Challenge</h1>
+                <p style="font-size: 1.2em; color: #666; margin-top: 10px;">
+                    Test your knowledge of science, history, and technology!
+                </p>
+            </div>
+            
+            <div class="instructions">
+                <h3>📋 How to Play:</h3>
+                <ul>
+                    <li><strong>25 Knowledge Questions</strong> covering science, history, technology, and more</li>
+                    <li><strong>~15 minutes</strong> total game time (36 seconds per question)</li>
+                    <li>Each correct answer = <strong>10 points</strong></li>
+                    <li>Select your answer and click "Submit Answer"</li>
+                    <li>You must wait for the timer to run out before moving to the next question</li>
+                    <li>Become the Knowledge Master! 🎓</li>
+                </ul>
+            </div>
+            
+            <button class="button" onclick="startGame()">Start Knowledge Challenge! 🚀</button>
+        </div>
+        
+        <!-- Game Screen -->
+        <div id="gameScreen" class="hidden">
+            <div class="header">
+                <h1>🧠 Knowledge Master</h1>
+                <div class="timer">⏱️ Time: <span id="timer">36</span>s</div>
+                <div class="score">🏆 Score: <span id="score">0</span> / <span id="maxScore">0</span></div>
+                <div class="progress">Question <span id="currentQ">1</span> of <span id="totalQ">25</span></div>
+            </div>
+            
+            <div class="question-container">
+                <div class="category" id="category"></div>
+                <div class="question" id="question"></div>
+                <div class="options" id="options"></div>
+                <div class="explanation hidden" id="explanation"></div>
+            </div>
+            
+            <button class="button" id="submitBtn" onclick="submitAnswer()" disabled>Submit Answer</button>
+            <button class="button hidden" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+        </div>
+        
+        <!-- End Screen -->
+        <div id="endScreen" class="hidden end-screen">
+            <div class="header">
+                <h1>🎉 Challenge Complete!</h1>
+            </div>
+            
+            <div class="final-score" id="finalScore">0/250</div>
+            <div class="feedback" id="feedback"></div>
+            
+            <div class="instructions">
+                <h3>🌟 Knowledge Master Results</h3>
+                <p style="margin-top: 15px; line-height: 1.6;">
+                    Great job! Share your score to see who's the ultimate Knowledge Master!
+                </p>
+            </div>
+            
+            <button class="button" onclick="location.reload()">Play Again 🔄</button>
+        </div>
+    </div>
+    
+    <script>
+        const questions = [
+            {
+                category: "🔬 Science",
+                question: "What is the powerhouse of the cell?",
+                options: ["Nucleus", "Mitochondria", "Ribosome", "Chloroplast"],
+                correct: 1,
+                explanation: "Mitochondria are known as the powerhouse of the cell because they generate most of the cell's ATP energy."
+            },
+            {
+                category: "📚 History",
+                question: "Who invented the printing press?",
+                options: ["Leonardo da Vinci", "Johannes Gutenberg", "Benjamin Franklin", "Isaac Newton"],
+                correct: 1,
+                explanation: "Johannes Gutenberg invented the mechanical printing press around 1440 in Germany."
+            },
+            {
+                category: "💻 Technology",
+                question: "What does 'RAM' stand for in computers?",
+                options: ["Random Access Memory", "Read Access Memory", "Rapid Application Memory", "Remote Access Module"],
+                correct: 0,
+                explanation: "RAM stands for Random Access Memory, used for temporary data storage while a computer is running."
+            },
+            {
+                category: "🔬 Science",
+                question: "What is the closest star to Earth?",
+                options: ["Proxima Centauri", "Alpha Centauri", "Sirius", "The Sun"],
+                correct: 3,
+                explanation: "The Sun is Earth's closest star at about 93 million miles away."
+            },
+            {
+                category: "📚 History",
+                question: "In which year did India gain independence?",
+                options: ["1942", "1945", "1947", "1950"],
+                correct: 2,
+                explanation: "India gained independence from British rule on August 15, 1947."
+            },
+            {
+                category: "💻 Technology",
+                question: "Who is credited with creating Bitcoin?",
+                options: ["Elon Musk", "Satoshi Nakamoto", "Mark Zuckerberg", "Vitalik Buterin"],
+                correct: 1,
+                explanation: "Satoshi Nakamoto is the pseudonym of the unknown person(s) who created Bitcoin in 2009."
+            },
+            {
+                category: "🔬 Science",
+                question: "What is the pH of pure water?",
+                options: ["5", "6", "7", "8"],
+                correct: 2,
+                explanation: "Pure water has a pH of 7, which is neutral (neither acidic nor basic)."
+            },
+            {
+                category: "📚 History",
+                question: "Who was the first woman to win a Nobel Prize?",
+                options: ["Rosalind Franklin", "Marie Curie", "Dorothy Hodgkin", "Barbara McClintock"],
+                correct: 1,
+                explanation: "Marie Curie won the Nobel Prize in Physics in 1903 (shared) and Chemistry in 1911 (solo)."
+            },
+            {
+                category: "💡 General Knowledge",
+                question: "How many bones are in the adult human body?",
+                options: ["186", "206", "226", "246"],
+                correct: 1,
+                explanation: "The adult human body has 206 bones. Babies are born with about 270 bones that fuse together as they grow."
+            },
+            {
+                category: "🔬 Science",
+                question: "What is the most abundant gas in Earth's atmosphere?",
+                options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
+                correct: 2,
+                explanation: "Nitrogen makes up about 78% of Earth's atmosphere, with oxygen at about 21%."
+            },
+            {
+                category: "🔬 Science",
+                question: "Which Indian scientist won the Nobel Prize in Physics in 1930?",
+                options: ["CV Raman", "Satyendra Nath Bose", "Homi Bhabha", "Subrahmanyan Chandrasekhar"],
+                correct: 0,
+                explanation: "CV Raman won the Nobel Prize in Physics in 1930 for his work on the scattering of light (Raman Effect)."
+            },
+            {
+                category: "💻 Technology",
+                question: "What year was the first iPhone released?",
+                options: ["2005", "2007", "2009", "2011"],
+                correct: 1,
+                explanation: "Apple released the first iPhone on June 29, 2007, revolutionizing the smartphone industry."
+            },
+            {
+                category: "📚 History",
+                question: "Who was the first Prime Minister of India?",
+                options: ["Mahatma Gandhi", "Jawaharlal Nehru", "Sardar Patel", "Indira Gandhi"],
+                correct: 1,
+                explanation: "Jawaharlal Nehru was India's first Prime Minister, serving from 1947 to 1964."
+            },
+            {
+                category: "📚 History",
+                question: "Which ancient wonder is still standing today?",
+                options: ["Hanging Gardens of Babylon", "Colossus of Rhodes", "Great Pyramid of Giza", "Lighthouse of Alexandria"],
+                correct: 2,
+                explanation: "The Great Pyramid of Giza is the only ancient wonder of the world that still exists today."
+            },
+            {
+                category: "💻 Technology",
+                question: "What does 'CPU' stand for?",
+                options: ["Central Processing Unit", "Computer Personal Unit", "Central Program Utility", "Computer Processing Utility"],
+                correct: 0,
+                explanation: "CPU stands for Central Processing Unit, often called the 'brain' of the computer."
+            },
+            {
+                category: "🔬 Science",
+                question: "What is the speed of sound at sea level?",
+                options: ["343 m/s", "500 m/s", "1000 m/s", "1500 m/s"],
+                correct: 0,
+                explanation: "The speed of sound at sea level is approximately 343 meters per second (767 mph)."
+            },
+            {
+                category: "💻 Technology",
+                question: "What is the name of India's Mars orbiter mission?",
+                options: ["Chandrayaan", "Mangalyaan", "Gaganyaan", "Aditya"],
+                correct: 1,
+                explanation: "Mangalyaan (Mars Orbiter Mission) was launched by ISRO in 2013, making India the first Asian nation to reach Mars orbit."
+            },
+            {
+                category: "💡 General Knowledge",
+                question: "What is the largest ocean on Earth?",
+                options: ["Atlantic", "Indian", "Pacific", "Arctic"],
+                correct: 2,
+                explanation: "The Pacific Ocean is the largest, covering about 63 million square miles."
+            },
+            {
+                category: "🔬 Science",
+                question: "What is the lightest element on the periodic table?",
+                options: ["Helium", "Hydrogen", "Lithium", "Carbon"],
+                correct: 1,
+                explanation: "Hydrogen is the lightest element, with an atomic number of 1 and atomic weight of about 1.008."
+            },
+            {
+                category: "💡 General Knowledge",
+                question: "Who is known as the 'Missile Man of India'?",
+                options: ["Vikram Sarabhai", "APJ Abdul Kalam", "Homi Bhabha", "Satish Dhawan"],
+                correct: 1,
+                explanation: "Dr. APJ Abdul Kalam was known as the 'Missile Man of India' for his work on missile development and served as President of India."
+            },
+            {
+                category: "💻 Technology",
+                question: "What does 'HTML' stand for?",
+                options: ["HyperText Markup Language", "High Tech Modern Language", "Home Tool Markup Language", "HyperText Modern Link"],
+                correct: 0,
+                explanation: "HTML stands for HyperText Markup Language, the standard language for creating web pages."
+            },
+            {
+                category: "🔬 Science",
+                question: "How long does it take light from the Sun to reach Earth?",
+                options: ["8 minutes", "1 hour", "1 day", "Instantly"],
+                correct: 0,
+                explanation: "Light from the Sun takes about 8 minutes and 20 seconds to reach Earth."
+            },
+            {
+                category: "💻 Technology",
+                question: "Which Indian city is known as the 'Silicon Valley of India'?",
+                options: ["Mumbai", "Hyderabad", "Bangalore", "Pune"],
+                correct: 2,
+                explanation: "Bangalore (Bengaluru) is known as the 'Silicon Valley of India' due to its role as the nation's leading IT exporter."
+            },
+            {
+                category: "💡 General Knowledge",
+                question: "What is the largest mammal on Earth?",
+                options: ["African Elephant", "Blue Whale", "Giraffe", "Polar Bear"],
+                correct: 1,
+                explanation: "The Blue Whale is the largest mammal, growing up to 100 feet long and weighing up to 200 tons."
+            },
+            {
+                category: "🔬 Science",
+                question: "What is absolute zero in Celsius?",
+                options: ["-273.15°C", "-100°C", "-200°C", "-373°C"],
+                correct: 0,
+                explanation: "Absolute zero is -273.15°C (-459.67°F), the lowest possible temperature where molecular motion stops."
+            }
+        ];
+        
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedOption = null;
+        let timer;
+        let timeLeft = 36;
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            document.getElementById('totalQ').textContent = questions.length;
+            document.getElementById('maxScore').textContent = questions.length * 10;
+            loadQuestion();
+            startTimer();
+        }
+        
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            document.getElementById('category').textContent = q.category;
+            document.getElementById('question').textContent = q.question;
+            document.getElementById('currentQ').textContent = currentQuestion + 1;
+            
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            
+            q.options.forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                div.textContent = option;
+                div.onclick = () => selectOption(index);
+                optionsDiv.appendChild(div);
+            });
+            
+            document.getElementById('explanation').classList.add('hidden');
+            document.getElementById('submitBtn').classList.remove('hidden');
+            document.getElementById('nextBtn').classList.add('hidden');
+            document.getElementById('submitBtn').disabled = true;
+            selectedOption = null;
+            
+            timeLeft = 36;
+            startTimer();
+        }
+        
+        function selectOption(index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.classList.remove('selected'));
+            options[index].classList.add('selected');
+            selectedOption = index;
+            document.getElementById('submitBtn').disabled = false;
+        }
+        
+        function submitAnswer() {
+            if (selectedOption === null) return;
+            if (timeLeft <= 0) return;
+            
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach(opt => opt.style.pointerEvents = 'none');
+            
+            options[q.correct].classList.add('correct');
+            
+            if (selectedOption === q.correct) {
+                score += 10;
+                document.getElementById('score').textContent = score;
+            } else {
+                options[selectedOption].classList.add('incorrect');
+            }
+            
+            document.getElementById('explanation').textContent = q.explanation;
+            document.getElementById('explanation').classList.remove('hidden');
+            document.getElementById('submitBtn').classList.add('hidden');
+        }
+        
+        function timeoutAnswer() {
+            clearInterval(timer);
+            const q = questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            
+            const submitBtn = document.getElementById('submitBtn');
+            if (!submitBtn.classList.contains('hidden')) {
+                options[q.correct].classList.add('correct');
+                
+                if (selectedOption !== null && selectedOption !== q.correct) {
+                    options[selectedOption].classList.add('incorrect');
+                }
+                
+                document.getElementById('explanation').textContent = '⏰ Time\'s up! ' + q.explanation;
+                document.getElementById('explanation').classList.remove('hidden');
+                document.getElementById('submitBtn').classList.add('hidden');
+            }
+            
+            document.getElementById('nextBtn').classList.remove('hidden');
+        }
+        
+        function nextQuestion() {
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+        
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    timeoutAnswer();
+                }
+            }, 1000);
+        }
+        
+        function endGame() {
+            clearInterval(timer);
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('endScreen').classList.remove('hidden');
+            
+            const finalScoreText = score + ' / ' + (questions.length * 10);
+            document.getElementById('finalScore').textContent = finalScoreText;
+            
+            const percentage = (score / (questions.length * 10)) * 100;
+            let feedback = '';
+            
+            if (percentage >= 90) {
+                feedback = '🌟 Brilliant! You\'re a true Knowledge Master!';
+            } else if (percentage >= 70) {
+                feedback = '🧠 Excellent! You have impressive knowledge!';
+            } else if (percentage >= 50) {
+                feedback = '📚 Well done! Great general knowledge!';
+            } else {
+                feedback = '💡 Keep learning! Knowledge is power!';
+            }
+            
+            document.getElementById('feedback').textContent = feedback;
+        }
+    </script>
+</body>
+</html>
